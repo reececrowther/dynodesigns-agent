@@ -18,9 +18,9 @@ from pathlib import Path
 from parse_plan import get_next_task
 
 try:
-    import google.generativeai as genai
+    from google import genai
 except ImportError:
-    print("Missing dependency. Run: pip install google-generativeai --break-system-packages")
+    print("Missing dependency. Run: pip install google-genai --break-system-packages")
     sys.exit(1)
 
 BASE_DIR = Path(__file__).parent
@@ -59,9 +59,8 @@ range for singles (use judgement for bundle-eligible series items)
 
 
 def call_gemini(prompt):
-    genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-    model = genai.GenerativeModel(MODEL)
-    response = model.generate_content(prompt)
+    client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
+    response = client.models.generate_content(model=MODEL, contents=prompt)
     text = response.text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
     return json.loads(text)
 
