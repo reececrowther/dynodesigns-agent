@@ -1,0 +1,37 @@
+name: Generate Daily Draft
+
+on:
+  schedule:
+    - cron: "0 8 * * *"   # 8am UTC daily — adjust to taste
+  workflow_dispatch: {}    # lets you also trigger it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install google-generativeai
+
+      - name: Generate next listing draft
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: python3 generate_next_listing.py
+
+      - name: Build the review page
+        run: python3 build_page.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "dynodesigns-agent"
+          git config user.email "actions@users.noreply.github.com"
+          git add drafts/ docs/
+          git diff --cached --quiet || git commit -m "Daily draft: $(date +'%Y-%m-%d')"
+          git push

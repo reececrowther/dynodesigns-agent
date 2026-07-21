@@ -1,0 +1,40 @@
+name: Mark Listing Done
+
+on:
+  workflow_dispatch:
+    inputs:
+      concept_num:
+        description: "Concept number (e.g. 15)"
+        required: true
+      sub_item:
+        description: 'Sub-item name for a series only (e.g. "LEO") — leave blank otherwise'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  mark-done:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Mark done in plan.md
+        run: |
+          if [ -n "${{ github.event.inputs.sub_item }}" ]; then
+            python3 mark_done.py "${{ github.event.inputs.concept_num }}" "${{ github.event.inputs.sub_item }}"
+          else
+            python3 mark_done.py "${{ github.event.inputs.concept_num }}"
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "dynodesigns-agent"
+          git config user.email "actions@users.noreply.github.com"
+          git add plan.md
+          git diff --cached --quiet || git commit -m "Mark #${{ github.event.inputs.concept_num }} done"
+          git push
