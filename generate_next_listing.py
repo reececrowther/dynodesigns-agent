@@ -4,7 +4,7 @@ Reads plan.md directly (no separate config), finds the next undone task,
 and drafts the Etsy metadata that's missing — title, tags, description,
 price. It does NOT invent the image prompt; your plan already has those.
 
-Requires: GOOGLE_API_KEY environment variable.
+Requires: GROQ_API_KEY environment variable.
 Run: python3 generate_next_listing.py
 """
 
@@ -18,15 +18,15 @@ from pathlib import Path
 from parse_plan import get_next_task
 
 try:
-    from google import genai
+    from groq import Groq
 except ImportError:
-    print("Missing dependency. Run: pip install google-genai --break-system-packages")
+    print("Missing dependency. Run: pip install groq --break-system-packages")
     sys.exit(1)
 
 BASE_DIR = Path(__file__).parent
 PLAN_PATH = BASE_DIR / "plan.md"
 OUTPUT_DIR = BASE_DIR / "drafts"
-MODEL = "gemini-2.0-flash"
+MODEL = "llama-3.3-70b-versatile"
 
 
 def build_prompt(task):
@@ -58,16 +58,21 @@ range for singles (use judgement for bundle-eligible series items)
 """
 
 
-def call_gemini(prompt):
-    client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
-    response = client.models.generate_content(model=MODEL, contents=prompt)
-    text = response.text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+def call_groq(prompt):
+    client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1200,
+    )
+    text = response.choices[0].message.content.strip()
+    text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
     return json.loads(text)
 
 
 def main():
-    if not os.environ.get("GOOGLE_API_KEY"):
-        print("Set GOOGLE_API_KEY in your environment first.")
+    if not os.environ.get("GROQ_API_KEY"):
+        print("Set GROQ_API_KEY in your environment first.")
         sys.exit(1)
 
     if not PLAN_PATH.exists():
@@ -90,7 +95,7 @@ def main():
         print(f"({task['remaining_count']} of {task['total_sub_items']} remaining in this series)")
 
     prompt = build_prompt(task)
-    result = call_gemini(prompt)
+    result = call_groq(prompt)
     result["_concept_num"] = task["concept_num"]
     result["_concept_title"] = task["concept_title"]
     result["_sub_item"] = task["sub_item"]
