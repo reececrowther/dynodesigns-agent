@@ -37,6 +37,11 @@ TEMPLATE = """<!DOCTYPE html>
   button:active {{ opacity: 0.8; }}
   code {{ font-size: 0.85rem; background: #f0e8dc; padding: 2px 6px; border-radius: 4px; }}
   .howto {{ font-size: 0.85rem; color: #8a7d6a; margin-top: 32px; }}
+  .done-btn {{ background: #c0392b; color: white; border: none; padding: 12px 20px;
+              border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 24px;
+              width: 100%; }}
+  .done-btn:active {{ opacity: 0.8; }}
+  #done-status {{ margin-top: 10px; font-size: 0.9rem; color: #8a7d6a; }}
 </style>
 </head>
 <body>
@@ -66,14 +71,60 @@ TEMPLATE = """<!DOCTYPE html>
 
   <div class="notes">{notes}</div>
 
+  <button class="done-btn" onclick="markDone()">Mark as Live on Etsy</button>
+  <div id="done-status"></div>
+
   <div class="howto">
-    When this is live on Etsy, go to Actions → "Mark Listing Done" in the
-    repo, run it with concept number <code>{concept_num}</code>{sub_item_hint}.
+    Tapping the button above will trigger the "Mark Listing Done" GitHub Actions
+    workflow automatically. You'll be asked for a GitHub token the first time.
   </div>
 
   <script>
+    const CONCEPT_NUM = "{concept_num}";
+    const SUB_ITEM = "{sub_item_js}";
+    const REPO = "reececrowther/dynodesigns-agent";
+
     function copyText(id) {{
       navigator.clipboard.writeText(document.getElementById(id).innerText);
+    }}
+
+    async function markDone() {{
+      let token = localStorage.getItem('gh_token');
+      if (!token) {{
+        token = prompt('Enter a GitHub Personal Access Token with workflow scope.\nThis is stored only in your browser and never sent anywhere except GitHub.');
+        if (!token) return;
+        localStorage.setItem('gh_token', token);
+      }}
+
+      const status = document.getElementById('done-status');
+      status.textContent = 'Triggering workflow...';
+
+      const body = {{
+        ref: 'main',
+        inputs: {{ concept_num: CONCEPT_NUM, sub_item: SUB_ITEM }}
+      }};
+
+      const res = await fetch(
+        `https://api.github.com/repos/${{REPO}}/actions/workflows/mark-done.yml/dispatches`,
+        {{
+          method: 'POST',
+          headers: {{
+            'Authorization': `Bearer ${{token}}`,
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json',
+          }},
+          body: JSON.stringify(body),
+        }}
+      );
+
+      if (res.status === 204) {{
+        status.textContent = 'Done! Listing marked as live. Tomorrow\'s draft will move to the next concept.';
+        document.querySelector('.done-btn').disabled = true;
+      }} else {{
+        const data = await res.json().catch(() => ({{}}));
+        status.textContent = 'Error: ' + (data.message || res.status) + ' — token cleared, try again.';
+        localStorage.removeItem('gh_token');
+      }}
     }}
   </script>
 </body>
@@ -106,6 +157,7 @@ def main():
         concept_num=d["_concept_num"],
         concept_title=d["_concept_title"],
         sub_item_str=sub_item_str,
+        sub_item_js=sub_item or "",
         image_prompt=d["_image_prompt"],
         tags_html=tags_html,
         description="<br><br>".join(p.strip() for p in d["description"].split("\n") if p.strip()),
