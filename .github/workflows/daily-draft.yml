@@ -18,11 +18,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install groq
+      - run: pip install openai
 
       - name: Generate next listing draft
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
         run: python3 generate_next_listing.py
 
       - name: Build the review page

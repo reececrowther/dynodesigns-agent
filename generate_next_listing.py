@@ -4,7 +4,7 @@ Reads plan.md directly (no separate config), finds the next undone task,
 and drafts the Etsy metadata that's missing — title, tags, description,
 price. It does NOT invent the image prompt; your plan already has those.
 
-Requires: GROQ_API_KEY environment variable.
+Requires: LLM_API_KEY environment variable.
 Run: python3 generate_next_listing.py
 """
 
@@ -18,15 +18,23 @@ from pathlib import Path
 from parse_plan import get_next_task
 
 try:
-    from groq import Groq
+    from openai import OpenAI
 except ImportError:
-    print("Missing dependency. Run: pip install groq --break-system-packages")
+    print("Missing dependency. Run: pip install openai --break-system-packages")
     sys.exit(1)
 
 BASE_DIR = Path(__file__).parent
 PLAN_PATH = BASE_DIR / "plan.md"
 OUTPUT_DIR = BASE_DIR / "drafts"
-MODEL = "llama-3.3-70b-versatile"
+
+# --- Provider config ---
+# OpenRouter (current):
+LLM_BASE_URL = "https://openrouter.ai/api/v1"
+MODEL = "meta-llama/llama-3.3-70b-instruct:free"
+# To switch back to Groq, comment the two lines above and uncomment these:
+# LLM_BASE_URL = "https://api.groq.com/openai/v1"
+# MODEL = "llama-3.3-70b-versatile"
+# ----------------------
 
 
 def build_prompt(task):
@@ -58,8 +66,8 @@ range for singles (use judgement for bundle-eligible series items)
 """
 
 
-def call_groq(prompt):
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
+def call_llm(prompt):
+    client = OpenAI(api_key=os.environ["LLM_API_KEY"], base_url=LLM_BASE_URL)
     response = client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
@@ -71,8 +79,8 @@ def call_groq(prompt):
 
 
 def main():
-    if not os.environ.get("GROQ_API_KEY"):
-        print("Set GROQ_API_KEY in your environment first.")
+    if not os.environ.get("LLM_API_KEY"):
+        print("Set LLM_API_KEY in your environment first.")
         sys.exit(1)
 
     if not PLAN_PATH.exists():
@@ -95,7 +103,7 @@ def main():
         print(f"({task['remaining_count']} of {task['total_sub_items']} remaining in this series)")
 
     prompt = build_prompt(task)
-    result = call_groq(prompt)
+    result = call_llm(prompt)
     result["_concept_num"] = task["concept_num"]
     result["_concept_title"] = task["concept_title"]
     result["_sub_item"] = task["sub_item"]
