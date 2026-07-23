@@ -57,6 +57,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="card">
     <div class="label">Etsy tags (13)</div>
     <div class="tags">{tags_html}</div>
+    <button onclick="copyTags()" style="margin-top:12px;">Copy all tags (comma separated)</button>
   </div>
 
   <div class="card">
@@ -83,9 +84,14 @@ TEMPLATE = """<!DOCTYPE html>
     const CONCEPT_NUM = "{concept_num}";
     const SUB_ITEM = "{sub_item_js}";
     const REPO = "reececrowther/dynodesigns-agent";
+    const TAGS = {tags_js};
 
     function copyText(id) {{
       navigator.clipboard.writeText(document.getElementById(id).innerText);
+    }}
+
+    function copyTags() {{
+      navigator.clipboard.writeText(TAGS.join(', '));
     }}
 
     async function markDone() {{
@@ -151,6 +157,7 @@ def main():
     sub_item_hint = f' and sub-item "{sub_item}"' if sub_item else ""
 
     tags_html = "".join(f'<span class="tag">{t}</span>' for t in d["tags"])
+    tags_js = json.dumps(d["tags"])
 
     html = TEMPLATE.format(
         title=d["title"],
@@ -160,6 +167,7 @@ def main():
         sub_item_js=sub_item or "",
         image_prompt=d["_image_prompt"],
         tags_html=tags_html,
+        tags_js=tags_js,
         description="<br><br>".join(p.strip() for p in d["description"].split("\n") if p.strip()),
         price=d["suggested_displayed_price_gbp"],
         notes=d["notes_for_review"],

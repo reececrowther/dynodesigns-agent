@@ -58,7 +58,16 @@ Produce STRICT JSON only, no markdown fences, no preamble, with these keys:
 - "title": Etsy-optimised title, under 140 characters, incorporating the specific \
 variant if one is given
 - "tags": array of exactly 13 Etsy tags, each under 20 characters, no duplicates
-- "description": 2-3 short paragraphs, plain text, no markdown
+- "description": An SEO-optimised Etsy listing description, 250-350 words, plain \
+text, no markdown. Structure it as follows: (1) An engaging opening paragraph \
+that describes the artwork and its mood, weaving in searchable keywords naturally. \
+(2) A paragraph about the style, colour palette, and what makes it special — \
+continue using relevant keywords. (3) A paragraph listing the available print \
+sizes: A4 (8.3x11.7in), A3 (11.7x16.5in), A2 (16.5x23.4in), A1 (23.4x33.1in), \
+5x7in, 8x10in, 11x14in, 16x20in, 18x24in, 24x36in — note that files are high \
+resolution (300 DPI) and suitable for professional printing. (4) A final short \
+paragraph stating clearly that this is an INSTANT DIGITAL DOWNLOAD — no physical \
+item is shipped, the buyer receives high-resolution files immediately after purchase.
 - "suggested_displayed_price_gbp": a number, informed by the plan's £9.99-12.99 \
 range for singles (use judgement for bundle-eligible series items)
 - "notes_for_review": 1-2 sentences flagging anything worth double-checking \
@@ -71,7 +80,7 @@ def call_llm(prompt):
     response = client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=1200,
+        max_tokens=1800,
     )
     text = response.choices[0].message.content.strip()
     text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
