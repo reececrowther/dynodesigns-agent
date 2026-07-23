@@ -30,7 +30,7 @@ OUTPUT_DIR = BASE_DIR / "drafts"
 # --- Provider config ---
 # OpenRouter (current):
 LLM_BASE_URL = "https://openrouter.ai/api/v1"
-MODEL = "mistralai/mistral-7b-instruct:free"
+MODEL = "nvidia/nemotron-nano-9b-v2:free"
 # To switch back to Groq, comment the two lines above and uncomment these:
 # LLM_BASE_URL = "https://api.groq.com/openai/v1"
 # MODEL = "llama-3.3-70b-versatile"
