@@ -214,7 +214,7 @@ you 8 listings from one concept. A mushroom species collection gives you
 
 ### Celestial & Space — Listing Ideas + Prompts
 
-**14. Moon Phases Series (8 listings from one concept)** IN PROGRESS (DONE: new moon, WAXING CRESCENT, FIRST QUARTER, FULL MOON, WANING GIBBOUS, LAST QUARTER, WANING CRESCENT)
+**14. Moon Phases Series (8 listings from one concept)** DONE
 
 Create 8 separate prints, one for each moon phase. Use this base prompt
 and swap in the phase name each time:
