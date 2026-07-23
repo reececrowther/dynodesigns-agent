@@ -24,43 +24,95 @@
   button:active { opacity: 0.8; }
   code { font-size: 0.85rem; background: #f0e8dc; padding: 2px 6px; border-radius: 4px; }
   .howto { font-size: 0.85rem; color: #8a7d6a; margin-top: 32px; }
+  .done-btn { background: #c0392b; color: white; border: none; padding: 12px 20px;
+              border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 24px;
+              width: 100%; }
+  .done-btn:active { opacity: 0.8; }
+  #done-status { margin-top: 10px; font-size: 0.9rem; color: #8a7d6a; }
 </style>
 </head>
 <body>
-  <h1>Moon Phases Art Print - Waxing Gibbous Cozy Cottage Scene</h1>
-  <div class="meta">Concept #14 — Moon Phases Series (8 listings from one concept) — WAXING GIBBOUS</div>
+  <h1>Celestial Sun & Moon Pair Art Print</h1>
+  <div class="meta">Concept #15 — Celestial Sun and Moon Pair</div>
 
   <div class="card">
     <div class="label">Image prompt (for Midjourney)</div>
-    <div class="value" id="prompt">WAXING GIBBOUS moon in a deep midnight blue sky, surrounded by soft glowing stars and wispy clouds, a cozy cottage silhouetted at the bottom, warm amber window light, oil painting style, impressionist brushwork, warm atmospheric lighting, rich painterly textures, cozy mood, highly detailed, vibrant but earthy colour palette, wall art print quality, 4K resolution</div>
+    <div class="value" id="prompt">Two companion prints: (1) A radiant golden sun face surrounded by rays, clouds and celestial stars in warm gold and amber tones. (2) A serene silver moon face surrounded by stars, moths and midnight flowers in cool blue and silver tones. Ornate vintage celestial illustration style, rich detailed linework, oil painting texture, warm atmospheric lighting, highly detailed, wall art print quality, 4K resolution</div>
     <button onclick="copyText('prompt')">Copy prompt</button>
   </div>
 
   <div class="card">
     <div class="label">Etsy tags (13)</div>
-    <div class="tags"><span class="tag">Moon Phases</span><span class="tag">Waxing Gibbous</span><span class="tag">Cottage Art</span><span class="tag">Oil Painting</span><span class="tag">Night Sky</span><span class="tag">Amber Light</span><span class="tag">Impressionist</span><span class="tag">Wall Art</span><span class="tag">Digital Print</span><span class="tag">Cozy Mood</span><span class="tag">Earthy Tones</span><span class="tag">4K Resolution</span><span class="tag">Starry Nights</span></div>
+    <div class="tags"><span class="tag">celestial art</span><span class="tag">sun moon print</span><span class="tag">vintage illustration</span><span class="tag">digital wall art</span><span class="tag">gold blue prints</span><span class="tag">celestial design</span><span class="tag">star symbols</span><span class="tag">moth art</span><span class="tag">night flowers</span><span class="tag">oil painting texture</span><span class="tag">custom wall decor</span><span class="tag">digital canvas print</span><span class="tag">celestial couple</span></div>
   </div>
 
   <div class="card">
     <div class="label">Description</div>
-    <div class="value">This listing features the Waxing Gibbous phase from our Moon Phases Series, showcasing a luminous moon in a midnight blue sky with glowing stars, wispy clouds, and a cozy cottage illuminated by warm amber light. The impressionist oil painting style adds rich textures and vibrant yet earthy hues, creating a serene and inviting atmosphere perfect for wall art. The 4K resolution print ensures intricate details and a professional finish.</div>
+    <div class="value">This celestial sun and moon pair art print features a radiant golden sun with rays and celestial stars in warm tones alongside a serene silver moon with stars and midnight flowers. Crafted in an ornate vintage style with rich linework and oil painting texture, the pieces combine warm and cool hues for striking contrast. Perfect for adding cosmic charm to any space, the 4K resolution and wall art quality ensure detailed, gallery-level presentation.</div>
   </div>
 
   <div class="card">
     <div class="label">Suggested displayed price</div>
-    <div class="price">£10.99</div>
+    <div class="price">£14.99</div>
   </div>
 
-  <div class="notes">Check consistency in 'Waxing Gibbous' phrasing across series listings. Confirm title uniqueness within the 8-series to avoid overlap with other variants.</div>
+  <div class="notes">Verify if 'vintage celestial' aligns with existing series. Check price against bundle eligibility for two-piece sets.</div>
+
+  <button class="done-btn" onclick="markDone()">Mark as Live on Etsy</button>
+  <div id="done-status"></div>
 
   <div class="howto">
-    When this is live on Etsy, go to Actions → "Mark Listing Done" in the
-    repo, run it with concept number <code>14</code> and sub-item "WAXING GIBBOUS".
+    Tapping the button above will trigger the "Mark Listing Done" GitHub Actions
+    workflow automatically. You'll be asked for a GitHub token the first time.
   </div>
 
   <script>
+    const CONCEPT_NUM = "15";
+    const SUB_ITEM = "";
+    const REPO = "reececrowther/dynodesigns-agent";
+
     function copyText(id) {
       navigator.clipboard.writeText(document.getElementById(id).innerText);
+    }
+
+    async function markDone() {
+      let token = localStorage.getItem('gh_token');
+      if (!token) {
+        token = prompt('Enter a GitHub Personal Access Token with workflow scope.
+This is stored only in your browser and never sent anywhere except GitHub.');
+        if (!token) return;
+        localStorage.setItem('gh_token', token);
+      }
+
+      const status = document.getElementById('done-status');
+      status.textContent = 'Triggering workflow...';
+
+      const body = {
+        ref: 'main',
+        inputs: { concept_num: CONCEPT_NUM, sub_item: SUB_ITEM }
+      };
+
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/actions/workflows/mark-done.yml/dispatches`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        }
+      );
+
+      if (res.status === 204) {
+        status.textContent = 'Done! Listing marked as live. Tomorrow's draft will move to the next concept.';
+        document.querySelector('.done-btn').disabled = true;
+      } else {
+        const data = await res.json().catch(() => ({}));
+        status.textContent = 'Error: ' + (data.message || res.status) + ' — token cleared, try again.';
+        localStorage.removeItem('gh_token');
+      }
     }
   </script>
 </body>
