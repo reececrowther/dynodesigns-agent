@@ -30,7 +30,7 @@ OUTPUT_DIR = BASE_DIR / "drafts"
 # --- Provider config ---
 # OpenRouter (current):
 LLM_BASE_URL = "https://openrouter.ai/api/v1"
-MODEL = "meta-llama/llama-3.3-70b-instruct:free"
+MODEL = "google/gemma-3-27b-it:free"
 # To switch back to Groq, comment the two lines above and uncomment these:
 # LLM_BASE_URL = "https://api.groq.com/openai/v1"
 # MODEL = "llama-3.3-70b-versatile"
