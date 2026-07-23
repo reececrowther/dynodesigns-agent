@@ -7,11 +7,61 @@
 <style>
   body { font-family: -apple-system, system-ui, sans-serif; max-width: 640px;
          margin: 0 auto; padding: 24px 16px; background: #faf8f5; color: #2b2620; }
-  p { color: #8a7d6a; }
+  h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  .meta { color: #8a7d6a; font-size: 0.9rem; margin-bottom: 24px; }
+  .card { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px;
+           box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: #a08d6f; margin-bottom: 6px; }
+  .value { font-size: 1rem; line-height: 1.5; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { background: #f0e8dc; padding: 4px 10px; border-radius: 999px; font-size: 0.85rem; }
+  .price { font-size: 1.4rem; font-weight: 600; color: #3d5a3d; }
+  .notes { background: #fdf3e3; border-left: 3px solid #d9a441; padding: 10px 14px;
+            border-radius: 6px; }
+  button { background: #3d5a3d; color: white; border: none; padding: 8px 14px;
+            border-radius: 8px; font-size: 0.85rem; cursor: pointer; margin-top: 8px; }
+  button:active { opacity: 0.8; }
+  code { font-size: 0.85rem; background: #f0e8dc; padding: 2px 6px; border-radius: 4px; }
+  .howto { font-size: 0.85rem; color: #8a7d6a; margin-top: 32px; }
 </style>
 </head>
 <body>
-  <h1>DynoDesigns Listing Agent</h1>
-  <p>No draft yet. Trigger the "Generate Daily Draft" workflow from the Actions tab to generate the first listing.</p>
+  <h1>Moon Phases Art Print - Waxing Gibbous Cozy Cottage Scene</h1>
+  <div class="meta">Concept #14 — Moon Phases Series (8 listings from one concept) — WAXING GIBBOUS</div>
+
+  <div class="card">
+    <div class="label">Image prompt (for Midjourney)</div>
+    <div class="value" id="prompt">WAXING GIBBOUS moon in a deep midnight blue sky, surrounded by soft glowing stars and wispy clouds, a cozy cottage silhouetted at the bottom, warm amber window light, oil painting style, impressionist brushwork, warm atmospheric lighting, rich painterly textures, cozy mood, highly detailed, vibrant but earthy colour palette, wall art print quality, 4K resolution</div>
+    <button onclick="copyText('prompt')">Copy prompt</button>
+  </div>
+
+  <div class="card">
+    <div class="label">Etsy tags (13)</div>
+    <div class="tags"><span class="tag">Moon Phases</span><span class="tag">Waxing Gibbous</span><span class="tag">Cottage Art</span><span class="tag">Oil Painting</span><span class="tag">Night Sky</span><span class="tag">Amber Light</span><span class="tag">Impressionist</span><span class="tag">Wall Art</span><span class="tag">Digital Print</span><span class="tag">Cozy Mood</span><span class="tag">Earthy Tones</span><span class="tag">4K Resolution</span><span class="tag">Starry Nights</span></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Description</div>
+    <div class="value">This listing features the Waxing Gibbous phase from our Moon Phases Series, showcasing a luminous moon in a midnight blue sky with glowing stars, wispy clouds, and a cozy cottage illuminated by warm amber light. The impressionist oil painting style adds rich textures and vibrant yet earthy hues, creating a serene and inviting atmosphere perfect for wall art. The 4K resolution print ensures intricate details and a professional finish.</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Suggested displayed price</div>
+    <div class="price">£10.99</div>
+  </div>
+
+  <div class="notes">Check consistency in 'Waxing Gibbous' phrasing across series listings. Confirm title uniqueness within the 8-series to avoid overlap with other variants.</div>
+
+  <div class="howto">
+    When this is live on Etsy, go to Actions → "Mark Listing Done" in the
+    repo, run it with concept number <code>14</code> and sub-item "WAXING GIBBOUS".
+  </div>
+
+  <script>
+    function copyText(id) {
+      navigator.clipboard.writeText(document.getElementById(id).innerText);
+    }
+  </script>
 </body>
 </html>
