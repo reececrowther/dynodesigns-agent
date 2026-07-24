@@ -77,14 +77,25 @@ range for singles (use judgement for bundle-eligible series items)
 
 def call_llm(prompt):
     client = OpenAI(api_key=os.environ["LLM_API_KEY"], base_url=LLM_BASE_URL)
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=1800,
-    )
-    text = response.choices[0].message.content.strip()
-    text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(text)
+    messages = [
+        {"role": "system", "content": "You respond with valid JSON only. No markdown fences, no commentary, no text outside the JSON object."},
+        {"role": "user", "content": prompt},
+    ]
+    last_error = None
+    for attempt in range(3):
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            max_tokens=1800,
+        )
+        text = response.choices[0].message.content.strip()
+        text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError as e:
+            last_error = e
+            print(f"JSON parse attempt {attempt + 1} failed: {e} — retrying")
+    raise last_error
 
 
 def main():
