@@ -32,7 +32,7 @@
 </style>
 </head>
 <body>
-  <h1>Celestial Sun & Moon Pair Art Print</h1>
+  <h1>Celestial Sun and Moon Print Pair - Golden and Silver Vintage Wall Art</h1>
   <div class="meta">Concept #15 — Celestial Sun and Moon Pair</div>
 
   <div class="card">
@@ -43,12 +43,13 @@
 
   <div class="card">
     <div class="label">Etsy tags (13)</div>
-    <div class="tags"><span class="tag">celestial art</span><span class="tag">sun moon print</span><span class="tag">vintage illustration</span><span class="tag">digital wall art</span><span class="tag">gold blue prints</span><span class="tag">celestial design</span><span class="tag">star symbols</span><span class="tag">moth art</span><span class="tag">night flowers</span><span class="tag">oil painting texture</span><span class="tag">custom wall decor</span><span class="tag">digital canvas print</span><span class="tag">celestial couple</span></div>
+    <div class="tags"><span class="tag">Celestial Art</span><span class="tag">Sun Print</span><span class="tag">Moon Print</span><span class="tag">Vintage Design</span><span class="tag">Wall Art</span><span class="tag">Digital Download</span><span class="tag">Gold and Silver</span><span class="tag">Celestial Pair</span><span class="tag">Starry Night</span><span class="tag">Autumn Decor</span><span class="tag">Hand Drawn Print</span><span class="tag">Oil Painting Style</span><span class="tag">Printable Art</span></div>
+    <button onclick="copyTags()" style="margin-top:12px;">Copy all tags (comma separated)</button>
   </div>
 
   <div class="card">
     <div class="label">Description</div>
-    <div class="value">This celestial sun and moon pair art print features a radiant golden sun with rays and celestial stars in warm tones alongside a serene silver moon with stars and midnight flowers. Crafted in an ornate vintage style with rich linework and oil painting texture, the pieces combine warm and cool hues for striking contrast. Perfect for adding cosmic charm to any space, the 4K resolution and wall art quality ensure detailed, gallery-level presentation.</div>
+    <div class="value">This is an INSTANT DIGITAL DOWNLOAD. Upon purchase, you’ll receive immediate access to high-resolution files ready for printing. No physical product is shipped—just download, print, and display your celestial art. Perfect for last-minute decor needs or gifting, this digital print offers convenience without compromising on quality.</div>
   </div>
 
   <div class="card">
@@ -56,7 +57,7 @@
     <div class="price">£14.99</div>
   </div>
 
-  <div class="notes">Verify if 'vintage celestial' aligns with existing series. Check price against bundle eligibility for two-piece sets.</div>
+  <div class="notes">Ensure 'vintage celestial illustration' aligns with the series' terminology. Verify keyword repetition across titles to avoid duplication.</div>
 
   <button class="done-btn" onclick="markDone()">Mark as Live on Etsy</button>
   <div id="done-status"></div>
@@ -70,9 +71,14 @@
     const CONCEPT_NUM = "15";
     const SUB_ITEM = "";
     const REPO = "reececrowther/dynodesigns-agent";
+    const TAGS = ["Celestial Art", "Sun Print", "Moon Print", "Vintage Design", "Wall Art", "Digital Download", "Gold and Silver", "Celestial Pair", "Starry Night", "Autumn Decor", "Hand Drawn Print", "Oil Painting Style", "Printable Art"];
 
     function copyText(id) {
       navigator.clipboard.writeText(document.getElementById(id).innerText);
+    }
+
+    function copyTags() {
+      navigator.clipboard.writeText(TAGS.join(', '));
     }
 
     async function markDone() {
