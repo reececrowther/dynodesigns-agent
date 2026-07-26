@@ -41,7 +41,7 @@
 </style>
 </head>
 <body>
-  <h1>Celestial Sun and Moon Pair Prints - Wall Art Decor</h1>
+  <h1>Celestial Sun and Moon Wall Art Print - DynoDesignsStore</h1>
   <div class="meta">Concept #15 — Celestial Sun and Moon Pair</div>
 
   <div class="card">
@@ -52,21 +52,21 @@
 
   <div class="card">
     <div class="label">Etsy tags (13)</div>
-    <div class="tags"><span class="tag">celestial art prints</span><span class="tag">sun and moon wall art</span><span class="tag">vintage celestial illustration</span><span class="tag">oil painting texture</span><span class="tag">4K wall prints</span><span class="tag">mystical home decor</span><span class="tag">celestial pair prints</span><span class="tag">artistic wall decor</span><span class="tag">nature-inspired art</span><span class="tag">detailed linework prints</span><span class="tag">atmospheric lighting art</span><span class="tag">digital wall art</span><span class="tag">instant digital download</span></div>
+    <div class="tags"><span class="tag">celestial</span><span class="tag">sun</span><span class="tag">moon</span><span class="tag">wall art</span><span class="tag">print</span><span class="tag">vintage</span><span class="tag">oil painting</span><span class="tag">digital download</span><span class="tag">instant download</span><span class="tag">home decor</span><span class="tag">celestial art</span><span class="tag">nature art</span><span class="tag">celestial decor</span></div>
     <button onclick="copyTags()" style="margin-top:12px;">Copy all tags (comma separated)</button>
   </div>
 
   <div class="card">
     <div class="label">Description</div>
-    <div class="value">Immerse your space with this enchanting Celestial Sun and Moon Pair, designed to evoke a sense of wonder and harmony. The radiant golden sun print features a detailed face surrounded by rays, clouds, and stars in warm gold and amber tones, while the serene silver moon print is adorned with stars, moths, and midnight flowers in cool blue and silver hues. Together, these prints create a poetic dialogue between light and shadow, perfect for adding a touch of cosmic magic to any room. Crafted in an ornate vintage celestial illustration style with rich linework and an oil painting texture, this set combines timeless artistry with modern print quality. The warm and cool color palettes contrast beautifully, creating a balanced and awe-inspiring visual narrative that inspires tranquility and imagination.<br><br>This collection merges the majesty of celestial bodies with intricate artistic detail, making it a standout piece for art lovers and interior decorators alike. The sun's bold, glowing design complements the moon's delicate, ethereal elements, both rendered in a style that mimics hand-painted oil works. The attention to detail in every element—from the sun's fiery rays to the moon's starry nightscapes—showcases a mastery of texture and shading. Whether you're seeking to create a focal point in your living room or a serene nook in your office, this pair offers versatility in its thematic depth and visual storytelling.<br><br>Available in high-resolution (300 DPI) formats for professional printing, this digital download includes the following print sizes: A4 (8.3x11.7in), A3 (11.7x16.5in), A2 (16.5x23.4in), A1 (23.4x33.1in), 5x7in, 8x10in, 11x14in, 16x20in, 18x24in, and 24x36in. Each size is optimized for clarity and vibrancy, ensuring stunning results whether framed or printed directly. The digital files are instantly accessible after purchase, allowing you to download and print at your convenience without waiting for physical shipping.<br><br>This is an INSTANT DIGITAL DOWNLOAD—no physical product is shipped. Upon purchase, you’ll receive high-resolution files immediately, ready for printing or digital use. Perfect for creating personalized gifts, home decor, or artistic displays, this celestial pair combines aesthetic beauty with practical flexibility for the modern buyer.</div>
+    <div class="value">This Celestial Sun and Moon Pair brings balance and wonder to any space. The radiant golden sun face, encircled by rays and stars, exudes warmth and energy, while the serene silver moon face, surrounded by midnight elements, offers calm and mystique. Rendered in rich vintage illustration style with detailed linework and oil painting texture, this artwork blends celestial mythology with natural beauty. The warm amber and cool blue tones create a harmonious contrast, making it ideal for those seeking spiritual or decorative prints that resonate with cosmic themes.<br><br>The design draws inspiration from timeless celestial art, emphasizing intricate details and atmospheric lighting. The oil texture adds depth, evoking a sense of aged craftsmanship while maintaining modern wall art appeal. Perfect for nature lovers, astronomy enthusiasts, or anyone drawn to symbolic art, this print combines earthy warmth with celestial precision. Its high detail ensures it stands out as a focal point in any room, whether hung as a single piece or displayed together in a curated arrangement.<br><br>Available in a range of print sizes to suit your needs: A4 (8.3x11.7in), A3 (11.7x16.5in), A2 (16.5x23.4in), A1 (23.4x33.1in), 5x7in, 8x10in, 11x14in, 16x20in, 18x24in, 24x36in. All files are high-resolution (300 DPI) and optimized for professional printing, ensuring crisp lines and vibrant colors whether printed at home or professionally. This flexibility allows you to choose the perfect size for your wall, frame, or digital use.<br><br>As an INSTANT DIGITAL DOWNLOAD, your purchase grants immediate access to high-quality digital files. No shipping required—simply download and print or display digitally. This makes it a convenient, eco-friendly option for acquiring premium wall art without wait times or shipping costs.</div>
   </div>
 
   <div class="card">
     <div class="label">Suggested displayed price</div>
-    <div class="price">£14.99</div>
+    <div class="price">£12.99</div>
   </div>
 
-  <div class="notes">Verify title uniqueness against previous listings in this series. Confirm all listed print sizes match the specified dimensions and resolution.</div>
+  <div class="notes">Check if 'vintage celestial illustration' aligns with prior series terminology and ensure tags do not overlap significantly with previous listings.</div>
 
   <button class="done-btn" id="done-btn" onclick="markDone()">Mark as Live on Etsy</button>
 
@@ -94,8 +94,9 @@
     const CONCEPT_NUM = "15";
     const SUB_ITEM = "";
     const REPO = "reececrowther/dynodesigns-agent";
-    const TAGS = ["celestial art prints", "sun and moon wall art", "vintage celestial illustration", "oil painting texture", "4K wall prints", "mystical home decor", "celestial pair prints", "artistic wall decor", "nature-inspired art", "detailed linework prints", "atmospheric lighting art", "digital wall art", "instant digital download"];
-    const BAKED_TOKEN = "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";
+    const TAGS = ["celestial", "sun", "moon", "wall art", "print", "vintage", "oil painting", "digital download", "instant download", "home decor", "celestial art", "nature art", "celestial decor"];
+    const BAKED_TOKEN = "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";
+    let manualToken = null;
 
     if (BAKED_TOKEN) {
       // Token is embedded at build time — hide the manual input UI entirely
@@ -125,7 +126,7 @@
     }
 
     function markDone() {
-      const token = BAKED_TOKEN || localStorage.getItem('gh_token');
+      const token = manualToken || BAKED_TOKEN || localStorage.getItem('gh_token');
       if (!token) {
         document.getElementById('token-box').style.display = 'block';
         document.getElementById('token-input').focus();
@@ -137,6 +138,7 @@
     function submitToken() {
       const token = document.getElementById('token-input').value.trim();
       if (!token) return;
+      manualToken = token;
       localStorage.setItem('gh_token', token);
       document.getElementById('clear-btn').style.display = 'inline';
       hideTokenBox();
@@ -166,9 +168,11 @@
         status.textContent = "Done! plan.md will be updated and tomorrow's draft will move to the next concept.";
       } else {
         const data = await res.json().catch(() => ({}));
-        status.textContent = 'Error: ' + (data.message || res.status) + '. Token cleared — try again.';
+        status.textContent = 'Error: ' + (data.message || res.status) + ' — enter a valid token below.';
         localStorage.removeItem('gh_token');
         document.getElementById('clear-btn').style.display = 'none';
+        document.getElementById('token-box').style.display = 'block';
+        document.getElementById('token-input').focus();
         btn.disabled = false;
       }
     }
