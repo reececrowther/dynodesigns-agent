@@ -41,7 +41,16 @@ TEMPLATE = """<!DOCTYPE html>
               border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 24px;
               width: 100%; }}
   .done-btn:active {{ opacity: 0.8; }}
+  .done-btn:disabled {{ background: #aaa; cursor: default; }}
   #done-status {{ margin-top: 10px; font-size: 0.9rem; color: #8a7d6a; }}
+  #token-box {{ background: #fff; border-radius: 12px; padding: 16px;
+               box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-top: 12px; display: none; }}
+  #token-box p {{ font-size: 0.85rem; color: #8a7d6a; margin: 0 0 8px 0; }}
+  #token-box input {{ width: 100%; padding: 8px 10px; border: 1px solid #d9cfc4;
+                      border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; }}
+  #token-box input:focus {{ outline: 2px solid #3d5a3d; }}
+  .clear-token {{ font-size: 0.78rem; color: #a08d6f; background: none; border: none;
+                  cursor: pointer; padding: 0; margin-top: 6px; text-decoration: underline; }}
 </style>
 </head>
 <body>
@@ -72,12 +81,26 @@ TEMPLATE = """<!DOCTYPE html>
 
   <div class="notes">{notes}</div>
 
-  <button class="done-btn" onclick="markDone()">Mark as Live on Etsy</button>
+  <button class="done-btn" id="done-btn" onclick="markDone()">Mark as Live on Etsy</button>
+
+  <div id="token-box">
+    <p>Paste a GitHub Personal Access Token with <strong>workflow</strong> scope.<br>
+       It is saved in your browser only and sent nowhere except GitHub.</p>
+    <input type="password" id="token-input" placeholder="ghp_…" />
+    <div style="display:flex; gap:8px; margin-top:8px;">
+      <button onclick="submitToken()">Save &amp; confirm</button>
+      <button onclick="hideTokenBox()" style="background:#999;">Cancel</button>
+    </div>
+  </div>
+
   <div id="done-status"></div>
+  <button class="clear-token" id="clear-btn" onclick="clearToken()" style="display:none;">Forget saved token</button>
 
   <div class="howto">
-    Tapping the button above will trigger the "Mark Listing Done" GitHub Actions
-    workflow automatically. You'll be asked for a GitHub token the first time.
+    Tap "Mark as Live on Etsy" once the listing is published. You will be asked
+    for a GitHub token the first time — create one at GitHub → Settings →
+    Developer settings → Personal access tokens → Tokens (classic), tick the
+    <code>workflow</code> scope.
   </div>
 
   <script>
@@ -85,6 +108,10 @@ TEMPLATE = """<!DOCTYPE html>
     const SUB_ITEM = "{sub_item_js}";
     const REPO = "reececrowther/dynodesigns-agent";
     const TAGS = {tags_js};
+
+    if (localStorage.getItem('gh_token')) {{
+      document.getElementById('clear-btn').style.display = 'inline';
+    }}
 
     function copyText(id) {{
       navigator.clipboard.writeText(document.getElementById(id).innerText);
@@ -94,21 +121,41 @@ TEMPLATE = """<!DOCTYPE html>
       navigator.clipboard.writeText(TAGS.join(', '));
     }}
 
-    async function markDone() {{
-      let token = localStorage.getItem('gh_token');
+    function hideTokenBox() {{
+      document.getElementById('token-box').style.display = 'none';
+      document.getElementById('token-input').value = '';
+    }}
+
+    function clearToken() {{
+      localStorage.removeItem('gh_token');
+      document.getElementById('clear-btn').style.display = 'none';
+      document.getElementById('done-status').textContent = 'Token cleared.';
+    }}
+
+    function markDone() {{
+      const token = localStorage.getItem('gh_token');
       if (!token) {{
-        token = prompt('Enter a GitHub Personal Access Token with workflow scope.\nThis is stored only in your browser and never sent anywhere except GitHub.');
-        if (!token) return;
-        localStorage.setItem('gh_token', token);
+        document.getElementById('token-box').style.display = 'block';
+        document.getElementById('token-input').focus();
+        return;
       }}
+      triggerWorkflow(token);
+    }}
 
+    function submitToken() {{
+      const token = document.getElementById('token-input').value.trim();
+      if (!token) return;
+      localStorage.setItem('gh_token', token);
+      document.getElementById('clear-btn').style.display = 'inline';
+      hideTokenBox();
+      triggerWorkflow(token);
+    }}
+
+    async function triggerWorkflow(token) {{
       const status = document.getElementById('done-status');
-      status.textContent = 'Triggering workflow...';
-
-      const body = {{
-        ref: 'main',
-        inputs: {{ concept_num: CONCEPT_NUM, sub_item: SUB_ITEM }}
-      }};
+      const btn = document.getElementById('done-btn');
+      btn.disabled = true;
+      status.textContent = 'Triggering workflow…';
 
       const res = await fetch(
         `https://api.github.com/repos/${{REPO}}/actions/workflows/mark-done.yml/dispatches`,
@@ -119,17 +166,18 @@ TEMPLATE = """<!DOCTYPE html>
             'Accept': 'application/vnd.github+json',
             'Content-Type': 'application/json',
           }},
-          body: JSON.stringify(body),
+          body: JSON.stringify({{ ref: 'main', inputs: {{ concept_num: CONCEPT_NUM, sub_item: SUB_ITEM }} }}),
         }}
       );
 
       if (res.status === 204) {{
-        status.textContent = 'Done! Listing marked as live. Tomorrow\'s draft will move to the next concept.';
-        document.querySelector('.done-btn').disabled = true;
+        status.textContent = 'Done! plan.md will be updated and tomorrow\'s draft will move to the next concept.';
       }} else {{
         const data = await res.json().catch(() => ({{}}));
-        status.textContent = 'Error: ' + (data.message || res.status) + ' — token cleared, try again.';
+        status.textContent = 'Error: ' + (data.message || res.status) + '. Token cleared — try again.';
         localStorage.removeItem('gh_token');
+        document.getElementById('clear-btn').style.display = 'none';
+        btn.disabled = false;
       }}
     }}
   </script>
