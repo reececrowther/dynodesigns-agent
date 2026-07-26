@@ -5,6 +5,7 @@ GitHub Pages serves docs/ as a static site — no server involved.
 """
 
 import json
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
@@ -108,8 +109,13 @@ TEMPLATE = """<!DOCTYPE html>
     const SUB_ITEM = "{sub_item_js}";
     const REPO = "reececrowther/dynodesigns-agent";
     const TAGS = {tags_js};
+    const BAKED_TOKEN = "{pages_token}";
 
-    if (localStorage.getItem('gh_token')) {{
+    if (BAKED_TOKEN) {{
+      // Token is embedded at build time — hide the manual input UI entirely
+      document.getElementById('token-box').style.display = 'none';
+      document.getElementById('clear-btn').style.display = 'none';
+    }} else if (localStorage.getItem('gh_token')) {{
       document.getElementById('clear-btn').style.display = 'inline';
     }}
 
@@ -133,7 +139,7 @@ TEMPLATE = """<!DOCTYPE html>
     }}
 
     function markDone() {{
-      const token = localStorage.getItem('gh_token');
+      const token = BAKED_TOKEN || localStorage.getItem('gh_token');
       if (!token) {{
         document.getElementById('token-box').style.display = 'block';
         document.getElementById('token-input').focus();
@@ -220,6 +226,7 @@ def main():
         price=d["suggested_displayed_price_gbp"],
         notes=d["notes_for_review"],
         sub_item_hint=sub_item_hint,
+        pages_token=os.environ.get("PAGES_GITHUB_TOKEN", ""),
     )
 
     DOCS_DIR.mkdir(exist_ok=True)

@@ -26,6 +26,8 @@ jobs:
         run: python3 generate_next_listing.py
 
       - name: Build the review page
+        env:
+          PAGES_GITHUB_TOKEN: ${{ secrets.PAGES_GITHUB_TOKEN }}
         run: python3 build_page.py
 
       - name: Commit and push
