@@ -232,7 +232,7 @@ print quality, 4K resolution
 
 Also create a bundle listing of all 8 as a set at £29.99.
 
-**15. Celestial Sun and Moon Pair**
+**15. Celestial Sun and Moon Pair** DONE
 ```
 Two companion prints: (1) A radiant golden sun face surrounded by 
 rays, clouds and celestial stars in warm gold and amber tones. 
