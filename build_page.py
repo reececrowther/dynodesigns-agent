@@ -110,6 +110,7 @@ TEMPLATE = """<!DOCTYPE html>
     const REPO = "reececrowther/dynodesigns-agent";
     const TAGS = {tags_js};
     const BAKED_TOKEN = "{pages_token}";
+    let manualToken = null;
 
     if (BAKED_TOKEN) {{
       // Token is embedded at build time — hide the manual input UI entirely
@@ -139,7 +140,7 @@ TEMPLATE = """<!DOCTYPE html>
     }}
 
     function markDone() {{
-      const token = BAKED_TOKEN || localStorage.getItem('gh_token');
+      const token = manualToken || BAKED_TOKEN || localStorage.getItem('gh_token');
       if (!token) {{
         document.getElementById('token-box').style.display = 'block';
         document.getElementById('token-input').focus();
@@ -151,6 +152,7 @@ TEMPLATE = """<!DOCTYPE html>
     function submitToken() {{
       const token = document.getElementById('token-input').value.trim();
       if (!token) return;
+      manualToken = token;
       localStorage.setItem('gh_token', token);
       document.getElementById('clear-btn').style.display = 'inline';
       hideTokenBox();
@@ -180,9 +182,11 @@ TEMPLATE = """<!DOCTYPE html>
         status.textContent = "Done! plan.md will be updated and tomorrow's draft will move to the next concept.";
       }} else {{
         const data = await res.json().catch(() => ({{}}));
-        status.textContent = 'Error: ' + (data.message || res.status) + '. Token cleared — try again.';
+        status.textContent = 'Error: ' + (data.message || res.status) + ' — enter a valid token below.';
         localStorage.removeItem('gh_token');
         document.getElementById('clear-btn').style.display = 'none';
+        document.getElementById('token-box').style.display = 'block';
+        document.getElementById('token-input').focus();
         btn.disabled = false;
       }}
     }}
