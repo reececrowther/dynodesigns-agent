@@ -177,7 +177,7 @@ TEMPLATE = """<!DOCTYPE html>
       );
 
       if (res.status === 204) {{
-        status.textContent = 'Done! plan.md will be updated and tomorrow\'s draft will move to the next concept.';
+        status.textContent = "Done! plan.md will be updated and tomorrow's draft will move to the next concept.";
       }} else {{
         const data = await res.json().catch(() => ({{}}));
         status.textContent = 'Error: ' + (data.message || res.status) + '. Token cleared — try again.';
