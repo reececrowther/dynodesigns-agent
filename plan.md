@@ -243,7 +243,7 @@ texture, warm atmospheric lighting, highly detailed, wall art
 print quality, 4K resolution
 ```
 
-**16. Zodiac Constellation Series (12 listings)**
+**16. Zodiac Constellation Series (12 listings)** IN PROGRESS (DONE: ARIES)
 
 One of the highest-volume concepts on this list. 12 prints, one per
 zodiac sign. Use this base prompt, swapping in the sign details:
