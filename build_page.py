@@ -174,7 +174,7 @@ TEMPLATE = """<!DOCTYPE html>
       const token = requireToken('generateNext');
       if (token) dispatch('daily-draft.yml', {{}},
         'next-status', 'next-btn',
-        'Workflow triggered — refresh this page in about 60 seconds to see the next draft.');
+        'Workflow running…', 90);
     }}
 
     function submitToken() {{
@@ -189,7 +189,7 @@ TEMPLATE = """<!DOCTYPE html>
       pendingAction = null;
     }}
 
-    async function dispatch(workflow, inputs, statusId, btnId, successMsg) {{
+    async function dispatch(workflow, inputs, statusId, btnId, successMsg, refreshAfter) {{
       const token = getToken();
       const status = document.getElementById(statusId);
       const btn = document.getElementById(btnId);
@@ -214,7 +214,18 @@ TEMPLATE = """<!DOCTYPE html>
       );
 
       if (res.status === 204) {{
-        status.textContent = successMsg;
+        if (refreshAfter) {{
+          let secs = refreshAfter;
+          const tick = () => {{
+            status.textContent = successMsg + ` Refreshing in ${{secs}}s…`;
+            if (secs <= 0) {{ location.reload(); return; }}
+            secs--;
+            setTimeout(tick, 1000);
+          }};
+          tick();
+        }} else {{
+          status.textContent = successMsg;
+        }}
       }} else {{
         const data = await res.json().catch(() => ({{}}));
         status.textContent = 'Error: ' + (data.message || res.status) + ' — enter a valid token below.';
