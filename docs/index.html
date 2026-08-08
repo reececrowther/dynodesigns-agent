@@ -38,6 +38,12 @@
   #token-box input:focus { outline: 2px solid #3d5a3d; }
   .clear-token { font-size: 0.78rem; color: #a08d6f; background: none; border: none;
                   cursor: pointer; padding: 0; margin-top: 6px; text-decoration: underline; }
+  .next-btn { background: #2c6e8a; color: white; border: none; padding: 12px 20px;
+              border-radius: 8px; font-size: 1rem; cursor: pointer; margin-top: 10px;
+              width: 100%; }
+  .next-btn:active { opacity: 0.8; }
+  .next-btn:disabled { background: #aaa; cursor: default; }
+  #next-status { margin-top: 8px; font-size: 0.9rem; color: #8a7d6a; }
 </style>
 </head>
 <body>
@@ -83,11 +89,13 @@
   <div id="done-status"></div>
   <button class="clear-token" id="clear-btn" onclick="clearToken()" style="display:none;">Forget saved token</button>
 
+  <button class="next-btn" id="next-btn" onclick="generateNext()">Generate next listing</button>
+  <div id="next-status"></div>
+
   <div class="howto">
-    Tap "Mark as Live on Etsy" once the listing is published. You will be asked
-    for a GitHub token the first time — create one at GitHub → Settings →
-    Developer settings → Personal access tokens → Tokens (classic), tick the
-    <code>workflow</code> scope.
+    "Mark as Live on Etsy" updates plan.md. "Generate next listing" runs the draft
+    workflow immediately so you can do multiple per day — refresh the page after
+    about 60 seconds to see the new draft. Both buttons use the same GitHub token.
   </div>
 
   <script>
@@ -97,13 +105,28 @@
     const TAGS = ["zodiac constellation", "gemini art", "celestial decor", "star map print", "astrology wall art", "gold constellation", "nebula background", "vintage star", "oil painting print", "digital wall decor", "instant download", "zodiac series", "constellation print"];
     const BAKED_TOKEN = "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";
     let manualToken = null;
+    let pendingAction = null;
 
     if (BAKED_TOKEN) {
-      // Token is embedded at build time — hide the manual input UI entirely
       document.getElementById('token-box').style.display = 'none';
       document.getElementById('clear-btn').style.display = 'none';
     } else if (localStorage.getItem('gh_token')) {
       document.getElementById('clear-btn').style.display = 'inline';
+    }
+
+    function getToken() {
+      return manualToken || BAKED_TOKEN || localStorage.getItem('gh_token');
+    }
+
+    function requireToken(action) {
+      const token = getToken();
+      if (!token) {
+        pendingAction = action;
+        document.getElementById('token-box').style.display = 'block';
+        document.getElementById('token-input').focus();
+        return null;
+      }
+      return token;
     }
 
     function copyText(id) {
@@ -121,18 +144,23 @@
 
     function clearToken() {
       localStorage.removeItem('gh_token');
+      manualToken = null;
       document.getElementById('clear-btn').style.display = 'none';
       document.getElementById('done-status').textContent = 'Token cleared.';
     }
 
     function markDone() {
-      const token = manualToken || BAKED_TOKEN || localStorage.getItem('gh_token');
-      if (!token) {
-        document.getElementById('token-box').style.display = 'block';
-        document.getElementById('token-input').focus();
-        return;
-      }
-      triggerWorkflow(token);
+      const token = requireToken('markDone');
+      if (token) dispatch('mark-done.yml', { concept_num: CONCEPT_NUM, sub_item: SUB_ITEM },
+        'done-status', 'done-btn',
+        "Done! plan.md updated — tomorrow's draft will move to the next concept.");
+    }
+
+    function generateNext() {
+      const token = requireToken('generateNext');
+      if (token) dispatch('daily-draft.yml', {},
+        'next-status', 'next-btn',
+        'Workflow triggered — refresh this page in about 60 seconds to see the next draft.');
     }
 
     function submitToken() {
@@ -142,17 +170,24 @@
       localStorage.setItem('gh_token', token);
       document.getElementById('clear-btn').style.display = 'inline';
       hideTokenBox();
-      triggerWorkflow(token);
+      if (pendingAction === 'markDone') markDone();
+      else if (pendingAction === 'generateNext') generateNext();
+      pendingAction = null;
     }
 
-    async function triggerWorkflow(token) {
-      const status = document.getElementById('done-status');
-      const btn = document.getElementById('done-btn');
+    async function dispatch(workflow, inputs, statusId, btnId, successMsg) {
+      const token = getToken();
+      const status = document.getElementById(statusId);
+      const btn = document.getElementById(btnId);
       btn.disabled = true;
       status.textContent = 'Triggering workflow…';
 
+      const body = Object.keys(inputs).length
+        ? { ref: 'main', inputs }
+        : { ref: 'main' };
+
       const res = await fetch(
-        `https://api.github.com/repos/${REPO}/actions/workflows/mark-done.yml/dispatches`,
+        `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/dispatches`,
         {
           method: 'POST',
           headers: {
@@ -160,16 +195,17 @@
             'Accept': 'application/vnd.github+json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ ref: 'main', inputs: { concept_num: CONCEPT_NUM, sub_item: SUB_ITEM } }),
+          body: JSON.stringify(body),
         }
       );
 
       if (res.status === 204) {
-        status.textContent = "Done! plan.md will be updated and tomorrow's draft will move to the next concept.";
+        status.textContent = successMsg;
       } else {
         const data = await res.json().catch(() => ({}));
         status.textContent = 'Error: ' + (data.message || res.status) + ' — enter a valid token below.';
         localStorage.removeItem('gh_token');
+        manualToken = null;
         document.getElementById('clear-btn').style.display = 'none';
         document.getElementById('token-box').style.display = 'block';
         document.getElementById('token-input').focus();
