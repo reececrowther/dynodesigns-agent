@@ -8,9 +8,12 @@ import json
 import os
 from pathlib import Path
 
+from parse_plan import get_next_task
+
 BASE_DIR = Path(__file__).parent
 DRAFTS_DIR = BASE_DIR / "drafts"
 DOCS_DIR = BASE_DIR / "docs"
+PLAN_PATH = BASE_DIR / "plan.md"
 
 TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -243,18 +246,44 @@ TEMPLATE = """<!DOCTYPE html>
 """
 
 
+def find_draft_for_task(task):
+    """Return the most recent draft file matching the given task, or None."""
+    num = task["concept_num"]
+    sub = task["sub_item"]
+    if sub:
+        pattern = f"*_concept{num:02d}_{sub.replace(' ', '-')}.json"
+    else:
+        pattern = f"*_concept{num:02d}.json"
+    matches = sorted(DRAFTS_DIR.glob(pattern))
+    return matches[-1] if matches else None
+
+
 def main():
     if not DRAFTS_DIR.exists():
         print("No drafts folder yet.")
         return
 
-    draft_files = sorted(DRAFTS_DIR.glob("*.json"))
-    if not draft_files:
+    # Show the draft for the current next task in plan.md, not just newest file.
+    draft = None
+    if PLAN_PATH.exists():
+        with open(PLAN_PATH) as f:
+            task = get_next_task(f.read())
+        if task:
+            draft = find_draft_for_task(task)
+            if draft:
+                print(f"Next task per plan.md: #{task['concept_num']} {task['concept_title']}"
+                      + (f" — {task['sub_item']}" if task["sub_item"] else ""))
+
+    if not draft:
+        # Fallback: show the newest draft if plan.md lookup failed
+        all_drafts = sorted(DRAFTS_DIR.glob("*.json"))
+        draft = all_drafts[-1] if all_drafts else None
+
+    if not draft:
         print("No drafts found.")
         return
 
-    latest = draft_files[-1]
-    with open(latest) as f:
+    with open(draft) as f:
         d = json.load(f)
 
     sub_item = d.get("_sub_item")
@@ -284,7 +313,7 @@ def main():
     with open(DOCS_DIR / "index.html", "w") as f:
         f.write(html)
 
-    print(f"Built docs/index.html from {latest.name}")
+    print(f"Built docs/index.html from {draft.name}")
 
 
 if __name__ == "__main__":
