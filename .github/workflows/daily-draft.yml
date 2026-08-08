@@ -36,4 +36,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add drafts/ docs/
           git diff --cached --quiet || git commit -m "Daily draft: $(date +'%Y-%m-%d')"
+          git pull --rebase
           git push
