@@ -45,33 +45,61 @@ def build_prompt(task):
         if task["total_sub_items"] and task["total_sub_items"] > 1 else ""
     )
 
-    return f"""You are drafting Etsy listing metadata for DynoDesignsStore, a digital \
-print shop. The image prompt below is already finalised — do not change or \
-rewrite it. Your job is only the metadata around it.
+    return f"""You are drafting Etsy SEO metadata for DynoDesignsStore, a digital art \
+print shop selling oil-painting-style wall art as instant digital downloads. \
+The image prompt is already finalised — do not change it. Your job is the \
+metadata only.
 
 Concept: {task['concept_title']}{series_line}{sub_line}
 
 Finalised image prompt (for context only):
 {task['base_prompt']}
 
-Produce STRICT JSON only, no markdown fences, no preamble, with these keys:
-- "title": Etsy-optimised title, under 140 characters, incorporating the specific \
-variant if one is given
-- "tags": array of exactly 13 Etsy tags, each under 20 characters, no duplicates
-- "description": An SEO-optimised Etsy listing description, 250-350 words, plain \
-text, no markdown. Structure it as follows: (1) An engaging opening paragraph \
-that describes the artwork and its mood, weaving in searchable keywords naturally. \
-(2) A paragraph about the style, colour palette, and what makes it special — \
-continue using relevant keywords. (3) A paragraph listing the available print \
-sizes: A4 (8.3x11.7in), A3 (11.7x16.5in), A2 (16.5x23.4in), A1 (23.4x33.1in), \
-5x7in, 8x10in, 11x14in, 16x20in, 18x24in, 24x36in — note that files are high \
-resolution (300 DPI) and suitable for professional printing. (4) A final short \
-paragraph stating clearly that this is an INSTANT DIGITAL DOWNLOAD — no physical \
-item is shipped, the buyer receives high-resolution files immediately after purchase.
-- "suggested_displayed_price_gbp": a number, informed by the plan's £9.99-12.99 \
-range for singles (use judgement for bundle-eligible series items)
-- "notes_for_review": 1-2 sentences flagging anything worth double-checking \
-(e.g. wording closeness to a previous listing in this series)
+Produce STRICT JSON only — no markdown fences, no preamble — with these keys:
+
+"title"
+- Under 140 characters. Use every character — unused space is a missed keyword.
+- Lead with the strongest searchable phrase (what a buyer would actually type).
+- Structure: [Primary keyword phrase] | [Style/mood descriptor] | [Product type] | [Occasion or use]
+- Example structure: "Leo Zodiac Wall Art Print | Celestial Star Sign Decor | Oil Painting Style | Digital Download"
+- Include the specific variant name if one is given.
+
+"tags"
+- Exactly 13 tags. Each tag must be under 20 characters including spaces.
+- Every tag must be a multi-word phrase — single-word tags are too broad to drive traffic.
+- Tags must overlap with words already used in the title and description (Etsy rewards consistency).
+- Cover all of these categories across the 13 tags:
+  * 3 theme/style tags (e.g. "celestial wall art", "zodiac art print", "boho home decor")
+  * 2 room/placement tags (e.g. "bedroom wall decor", "living room art")
+  * 2 gift occasion tags (e.g. "gift for her", "housewarming gift")
+  * 2 format tags (e.g. "digital download", "printable wall art")
+  * 2 art-type tags (e.g. "oil painting print", "illustrated art")
+  * 2 further long-tail search phrases specific to this listing
+
+"description"
+- 280-380 words. Plain text, no markdown.
+- The first 160 characters are shown as the Google search snippet — open with the \
+primary keyword phrase and a compelling hook within those first 160 characters.
+- Repeat the primary keyword phrase naturally 2-3 times across the description.
+- Paragraph 1 (hook + keywords): Describe the artwork vividly, weaving in the top \
+2-3 search phrases. Mention the style, mood, and colours.
+- Paragraph 2 (buyer fit + occasion): Who this is perfect for. Include gift occasions \
+("gift for her", "birthday gift", "housewarming gift") and room styles \
+("boho bedroom", "maximalist gallery wall", "meditation space") relevant to this piece.
+- Paragraph 3 (sizes + quality): Available print sizes: A4 (8.3x11.7in), \
+A3 (11.7x16.5in), A2 (16.5x23.4in), A1 (23.4x33.1in), 5x7in, 8x10in, 11x14in, \
+16x20in, 18x24in, 24x36in. Files are 300 DPI, print-ready for professional results.
+- Paragraph 4 (download statement): Use the phrases "instant digital download", \
+"printable wall art", and "digital print" in this paragraph. State clearly that \
+no physical item is shipped — files are delivered immediately after purchase.
+
+"suggested_displayed_price_gbp"
+- A number. Singles: £9.99-£12.99. Use higher end for premium/complex artwork or \
+bundle-eligible series items.
+
+"notes_for_review"
+- 1-2 sentences. Flag IP risk, tag character-count issues, or wording too close \
+to another listing in this series.
 """
 
 
@@ -86,7 +114,7 @@ def call_llm(prompt):
         response = client.chat.completions.create(
             model=MODEL,
             messages=messages,
-            max_tokens=1800,
+            max_tokens=2200,
         )
         text = response.choices[0].message.content.strip()
         text = text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
