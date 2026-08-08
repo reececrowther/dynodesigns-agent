@@ -69,13 +69,17 @@ def get_status(concept):
     return "pending"
 
 
-def get_next_task(md_text):
+def get_next_task(md_text, skip_concept_nums=None):
     """
     Returns the next actionable task, or None if everything is done.
     For series concepts, returns the next undone sub-item specifically.
+    Pass skip_concept_nums to exclude concepts already drafted today.
     """
+    skip = set(skip_concept_nums or [])
     concepts = parse_concepts(md_text)
     for c in concepts:
+        if c["num"] in skip:
+            continue
         status = get_status(c)
         if status == "done":
             continue

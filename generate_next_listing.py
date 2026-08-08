@@ -110,7 +110,17 @@ def main():
     with open(PLAN_PATH) as f:
         plan_text = f.read()
 
-    task = get_next_task(plan_text)
+    today = date.today().isoformat()
+    drafted_today = set()
+    if OUTPUT_DIR.exists():
+        for f in OUTPUT_DIR.glob(f"{today}_concept*.json"):
+            m = re.match(r".+_concept(\d+)", f.stem)
+            if m:
+                drafted_today.add(int(m.group(1)))
+    if drafted_today:
+        print(f"Skipping concepts already drafted today: {sorted(drafted_today)}")
+
+    task = get_next_task(plan_text, skip_concept_nums=drafted_today)
     if task is None:
         print("No pending tasks found — plan.md shows everything as DONE.")
         sys.exit(0)
@@ -135,7 +145,6 @@ def main():
         result["_image_prompt"] = task["base_prompt"]
 
     OUTPUT_DIR.mkdir(exist_ok=True)
-    today = date.today().isoformat()
     safe_sub = f"_{task['sub_item'].replace(' ', '-')}" if task["sub_item"] else ""
     out_path = OUTPUT_DIR / f"{today}_concept{task['concept_num']:02d}{safe_sub}.json"
     with open(out_path, "w") as f:
