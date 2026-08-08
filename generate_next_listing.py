@@ -113,14 +113,17 @@ def main():
     today = date.today().isoformat()
     drafted_today = set()
     if OUTPUT_DIR.exists():
-        for f in OUTPUT_DIR.glob(f"{today}_concept*.json"):
-            m = re.match(r".+_concept(\d+)", f.stem)
-            if m:
-                drafted_today.add(int(m.group(1)))
+        for draft_file in OUTPUT_DIR.glob(f"{today}_concept*.json"):
+            try:
+                with open(draft_file) as jf:
+                    d = json.load(jf)
+                drafted_today.add((d["_concept_num"], d.get("_sub_item")))
+            except Exception:
+                pass
     if drafted_today:
-        print(f"Skipping concepts already drafted today: {sorted(drafted_today)}")
+        print(f"Skipping tasks already drafted today: {drafted_today}")
 
-    task = get_next_task(plan_text, skip_concept_nums=drafted_today)
+    task = get_next_task(plan_text, skip_tasks=drafted_today)
     if task is None:
         print("No pending tasks found — plan.md shows everything as DONE.")
         sys.exit(0)

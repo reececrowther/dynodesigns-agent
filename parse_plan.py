@@ -69,17 +69,18 @@ def get_status(concept):
     return "pending"
 
 
-def get_next_task(md_text, skip_concept_nums=None):
+def get_next_task(md_text, skip_tasks=None):
     """
     Returns the next actionable task, or None if everything is done.
     For series concepts, returns the next undone sub-item specifically.
-    Pass skip_concept_nums to exclude concepts already drafted today.
+
+    skip_tasks: set of (concept_num, sub_item) tuples already drafted today.
+    For single concepts pass (num, None). Skips only those specific tasks,
+    not the whole concept, so mid-series runs advance correctly.
     """
-    skip = set(skip_concept_nums or [])
+    skip = set(skip_tasks or [])
     concepts = parse_concepts(md_text)
     for c in concepts:
-        if c["num"] in skip:
-            continue
         status = get_status(c)
         if status == "done":
             continue
@@ -88,29 +89,35 @@ def get_next_task(md_text, skip_concept_nums=None):
 
         if status == "partial":
             done = done_sub_items_for(c)
-            remaining = [s for s in sub_items if s.upper() not in done] if sub_items else []
+            remaining_in_plan = [s for s in sub_items if s.upper() not in done] if sub_items else []
+            remaining = [s for s in remaining_in_plan if (c["num"], s) not in skip]
             if remaining:
                 return {
                     "concept_num": c["num"],
                     "concept_title": c["title"],
                     "sub_item": remaining[0],
-                    "remaining_count": len(remaining),
+                    "remaining_count": len(remaining_in_plan),
                     "total_sub_items": len(sub_items) if sub_items else None,
                     "base_prompt": c["prompt"],
                 }
-            continue  # partial but somehow nothing remaining — treat as done, move on
+            continue
 
         # status == "pending"
         if sub_items:
+            remaining = [s for s in sub_items if (c["num"], s) not in skip]
+            if not remaining:
+                continue  # all sub-items already drafted today
             return {
                 "concept_num": c["num"],
                 "concept_title": c["title"],
-                "sub_item": sub_items[0],
+                "sub_item": remaining[0],
                 "remaining_count": len(sub_items),
                 "total_sub_items": len(sub_items),
                 "base_prompt": c["prompt"],
             }
         else:
+            if (c["num"], None) in skip:
+                continue  # single concept already drafted today
             return {
                 "concept_num": c["num"],
                 "concept_title": c["title"],
